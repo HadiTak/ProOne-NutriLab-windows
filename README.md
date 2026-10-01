@@ -2,8 +2,6 @@
 
 **[English](#english) | [فارسی](#فارسی)**
 
-![screenshot](screenshot.png)
-
 ---
 
 <a name="english"></a>
