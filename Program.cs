@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.Globalization;
 using System.Text;
 using System.Windows.Forms;
 using Windows.Devices.Bluetooth.Advertisement;
@@ -26,11 +27,15 @@ sealed class MainForm : Form
 
     // ---- UI ----
     readonly Label lblWeight = new();
+    readonly Label lblHint = new();
+    readonly Label lblAddCaption = new();
+    readonly TextBox txtAdd = new();
+    readonly Label lblTotal = new();
     readonly Label lblInfo = new();
     readonly Label lblRaw = new();
     readonly System.Windows.Forms.Timer uiTimer = new();
 
-    // ---- Shared state (written by BLE thread, read by UI timer) ----
+    // ---- Shared state (written by BLE thread, read by UI) ----
     readonly object _lock = new();
     BluetoothLEAdvertisementWatcher? _watcher;
     int _weight = -1;
@@ -41,34 +46,109 @@ sealed class MainForm : Form
     string _raw = "";
     string _error = "";
 
+    // ---- Copy feedback ----
+    string _toast = "";
+    DateTime _toastUntil = DateTime.MinValue;
+
+    // Result of the last total calculation (used for click-to-copy)
+    string _totalText = "";
+
     public MainForm()
     {
         Text = "IN_C1 Scale";
-        ClientSize = new Size(560, 380);
+        ClientSize = new Size(560, 660);
+        MinimumSize = new Size(420, 320);
         StartPosition = FormStartPosition.CenterScreen;
         BackColor = Color.FromArgb(24, 24, 28);
         ForeColor = Color.White;
         Font = new Font("Segoe UI", 10f);
 
-        lblWeight.Dock = DockStyle.Top;
-        lblWeight.Height = 140;
+        // Big weight (click to copy)
+        lblWeight.Dock = DockStyle.Fill;
+        lblWeight.AutoSize = true;
         lblWeight.TextAlign = ContentAlignment.MiddleCenter;
-        lblWeight.Font = new Font("Segoe UI", 64f, FontStyle.Bold);
+        lblWeight.Font = new Font("Segoe UI", 60f, FontStyle.Bold);
         lblWeight.Text = "--- g";
+        lblWeight.Cursor = Cursors.Hand;
+        lblWeight.Click += (_, _) => CopyWeight();
 
-        lblInfo.Dock = DockStyle.Top;
-        lblInfo.Height = 150;
-        lblInfo.Padding = new Padding(24, 8, 24, 0);
+        // Hint / "Copied" message
+        lblHint.Dock = DockStyle.Fill;
+        lblHint.AutoSize = true;
+        lblHint.TextAlign = ContentAlignment.MiddleCenter;
+        lblHint.ForeColor = Color.Gray;
+        lblHint.Font = new Font("Segoe UI", 9f);
+        lblHint.Padding = new Padding(0, 0, 0, 8);
+
+        // Add (g) row
+        lblAddCaption.Text = "Add (g):";
+        lblAddCaption.AutoSize = true;
+        lblAddCaption.Font = new Font("Segoe UI", 14f);
+        lblAddCaption.Margin = new Padding(0, 8, 8, 0);
+
+        txtAdd.Width = 140;
+        txtAdd.Font = new Font("Segoe UI", 16f);
+        txtAdd.BackColor = Color.FromArgb(45, 45, 52);
+        txtAdd.ForeColor = Color.White;
+        txtAdd.BorderStyle = BorderStyle.FixedSingle;
+        txtAdd.TextChanged += (_, _) => RefreshUi();
+        txtAdd.Enter += (_, _) => txtAdd.SelectAll();
+
+        var addRow = new FlowLayoutPanel
+        {
+            AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink,
+            WrapContents = false,
+            Anchor = AnchorStyles.None,
+            Margin = new Padding(0, 4, 0, 4)
+        };
+        addRow.Controls.Add(lblAddCaption);
+        addRow.Controls.Add(txtAdd);
+
+        // Total (click to copy)
+        lblTotal.Dock = DockStyle.Fill;
+        lblTotal.AutoSize = true;
+        lblTotal.TextAlign = ContentAlignment.MiddleCenter;
+        lblTotal.Font = new Font("Segoe UI", 26f, FontStyle.Bold);
+        lblTotal.ForeColor = Color.FromArgb(120, 200, 255);
+        lblTotal.Cursor = Cursors.Hand;
+        lblTotal.Padding = new Padding(0, 8, 0, 8);
+        lblTotal.Click += (_, _) => CopyTotal();
+
+        // Info block
+        lblInfo.Dock = DockStyle.Fill;
+        lblInfo.AutoSize = true;
         lblInfo.Font = new Font("Consolas", 11f);
+        lblInfo.Padding = new Padding(8, 8, 8, 0);
 
+        // Raw data
         lblRaw.Dock = DockStyle.Fill;
-        lblRaw.Padding = new Padding(24, 0, 24, 0);
+        lblRaw.AutoSize = true;
         lblRaw.Font = new Font("Consolas", 9f);
         lblRaw.ForeColor = Color.Gray;
+        lblRaw.Padding = new Padding(8, 4, 8, 8);
 
-        Controls.Add(lblRaw);
-        Controls.Add(lblInfo);
-        Controls.Add(lblWeight);
+        // Layout: one column, every row sizes itself automatically
+        var table = new TableLayoutPanel
+        {
+            Dock = DockStyle.Top,
+            AutoSize = true,
+            AutoSizeMode = AutoSizeMode.GrowAndShrink,
+            ColumnCount = 1,
+            Padding = new Padding(12)
+        };
+        table.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        table.Controls.Add(lblWeight);
+        table.Controls.Add(lblHint);
+        table.Controls.Add(addRow);
+        table.Controls.Add(lblTotal);
+        table.Controls.Add(lblInfo);
+        table.Controls.Add(lblRaw);
+
+        // Scroll container: if the window is small, a scrollbar appears
+        var scroll = new Panel { Dock = DockStyle.Fill, AutoScroll = true };
+        scroll.Controls.Add(table);
+        Controls.Add(scroll);
 
         uiTimer.Interval = 150;
         uiTimer.Tick += (_, _) => RefreshUi();
@@ -77,6 +157,8 @@ sealed class MainForm : Form
         Load += (_, _) => StartWatcher();
         FormClosing += (_, _) => { try { _watcher?.Stop(); } catch { } };
     }
+
+    // ------------------------------------------------------------ BLE
 
     void StartWatcher()
     {
@@ -101,10 +183,8 @@ sealed class MainForm : Form
 
     void OnReceived(BluetoothLEAdvertisementWatcher sender, BluetoothLEAdvertisementReceivedEventArgs args)
     {
-        // MAC filter
         if (args.BluetoothAddress != TargetMac) return;
 
-        // Name filter (only if the name is present in this packet)
         var name = args.Advertisement.LocalName;
         if (!string.IsNullOrEmpty(name) && name != DeviceName) return;
 
@@ -112,14 +192,12 @@ sealed class MainForm : Form
         {
             if (md.CompanyId != CompanyId) continue;
 
-            // Windows gives the company ID separately; md.Data has only the bytes AFTER it.
-            // Rebuild the full buffer so offsets match the raw Android dump: 80 04 01 29 ...
             var payload = new byte[md.Data.Length];
             DataReader.FromBuffer(md.Data).ReadBytes(payload);
 
             var full = new byte[payload.Length + 2];
-            full[0] = (byte)(CompanyId & 0xFF);   // 0x80
-            full[1] = (byte)(CompanyId >> 8);     // 0x04
+            full[0] = (byte)(CompanyId & 0xFF);
+            full[1] = (byte)(CompanyId >> 8);
             Array.Copy(payload, 0, full, 2, payload.Length);
 
             if (full.Length < 16) continue;
@@ -140,11 +218,59 @@ sealed class MainForm : Form
                 }
                 else
                 {
-                    _suspicious = true;   // keep last good weight
+                    _suspicious = true;
                 }
             }
         }
     }
+
+    // ------------------------------------------------------------ Copy
+
+    void CopyText(string text)
+    {
+        if (string.IsNullOrEmpty(text)) return;
+        try
+        {
+            Clipboard.SetText(text);
+            _toast = "Copied: " + text;
+        }
+        catch
+        {
+            _toast = "Copy failed, try again";
+        }
+        _toastUntil = DateTime.Now.AddSeconds(1.5);
+        RefreshUi();
+    }
+
+    void CopyWeight()
+    {
+        int w;
+        lock (_lock) w = _weight;
+        if (w >= 0) CopyText(w.ToString(CultureInfo.InvariantCulture));
+    }
+
+    void CopyTotal()
+    {
+        CopyText(_totalText);
+    }
+
+    // ------------------------------------------------------------ Helpers
+
+    // Accepts Persian/Arabic digits and "," or "٫" as decimal separator
+    static string NormalizeNumber(string s)
+    {
+        var sb = new StringBuilder();
+        foreach (var ch in s.Trim())
+        {
+            if (ch >= '۰' && ch <= '۹') sb.Append((char)('0' + (ch - '۰')));
+            else if (ch >= '٠' && ch <= '٩') sb.Append((char)('0' + (ch - '٠')));
+            else if (ch == '٫' || ch == ',') sb.Append('.');
+            else sb.Append(ch);
+        }
+        return sb.ToString();
+    }
+
+    // ------------------------------------------------------------ UI refresh
 
     void RefreshUi()
     {
@@ -158,9 +284,40 @@ sealed class MainForm : Form
         bool receiving = last != DateTime.MinValue &&
                          (DateTime.Now - last).TotalSeconds <= NoSignalSeconds;
 
+        // Weight
         lblWeight.Text = weight >= 0 ? $"{weight} g" : "--- g";
         lblWeight.ForeColor = receiving ? Color.White : Color.DimGray;
 
+        // Hint / copied message
+        lblHint.Text = DateTime.Now < _toastUntil
+            ? _toast
+            : "Click the weight or the total to copy";
+
+        // Total = weight + added value
+        string addText = NormalizeNumber(txtAdd.Text);
+        if (weight < 0)
+        {
+            lblTotal.Text = "Total: ---";
+            _totalText = "";
+        }
+        else if (addText.Length == 0)
+        {
+            _totalText = weight.ToString(CultureInfo.InvariantCulture);
+            lblTotal.Text = $"Total: {_totalText} g";
+        }
+        else if (decimal.TryParse(addText, NumberStyles.Float, CultureInfo.InvariantCulture, out var add))
+        {
+            decimal total = weight + add;
+            _totalText = total.ToString("0.##", CultureInfo.InvariantCulture);
+            lblTotal.Text = $"Total: {_totalText} g";
+        }
+        else
+        {
+            _totalText = "";
+            lblTotal.Text = "Invalid number";
+        }
+
+        // Status
         string status = error.Length > 0 ? error
                       : receiving ? (suspicious ? "Receiving (suspicious packet)" : "Receiving")
                       : "No Signal";
