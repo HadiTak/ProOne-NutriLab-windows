@@ -34,7 +34,7 @@ Go to the **[Releases page](https://github.com/HadiTak/ProOne-NutriLab-windows/r
 3. The weight appears within a second. If the scale is off or too far, the status shows **No Signal**.
 4. Click the weight to copy it. Type a number in **Add (g)** to see the total, then click the total to copy it.
 
-> Windows may show a blue "SmartScreen" warning because the app is not digitally signed. Click **More info** then **Run anyway**. You can also read the source code in this repository and build it yourself.
+> Windows may show a blue "SmartScreen" warning because the app is not digitally signed. Click **More info** then **Run anyway**. To avoid the warning entirely: right-click the downloaded `.exe` → **Properties** → tick **Unblock** at the bottom → **OK**, then run it. You can also read the source code in this repository and build it yourself.
 
 ### Requirements
 
@@ -107,7 +107,7 @@ This is an unofficial, independent project made by observing the scale's public 
 3. وزن در کمتر از یک ثانیه نمایش داده می‌شود. اگر ترازو خاموش یا دور باشد، وضعیت **No Signal** می‌شود.
 4. برای کپی وزن روی آن کلیک کنید. برای مجموع، عدد را در **Add (g)** بنویسید و روی مجموع کلیک کنید.
 
-> چون برنامه امضای دیجیتال ندارد، ممکن است ویندوز هشدار آبی SmartScreen بدهد. روی **More info** و بعد **Run anyway** بزنید. اگر اطمینان نداشتید، سورس‌کد همین ریپو را بخوانید و خودتان Build کنید.
+> چون برنامه امضای دیجیتال ندارد، ممکن است ویندوز هشدار آبی SmartScreen بدهد. روی **More info** و بعد **Run anyway** بزنید. برای اینکه این هشدار اصلاً نیاید: روی فایل `.exe` دانلودشده راست‌کلیک کنید → **Properties** → پایین پنجره تیک **Unblock** را بزنید → **OK** و بعد اجرا کنید. اگر اطمینان نداشتید، سورس‌کد همین ریپو را بخوانید و خودتان Build کنید.
 
 ### نیازمندی‌ها
 
