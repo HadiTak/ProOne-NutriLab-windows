@@ -22,8 +22,8 @@ sealed class MainForm : Form
     // ---- Device filter ----
     const string DeviceName = "IN_C1";
     const ushort CompanyId = 0x0480;
-    const ulong TargetMac = 0x64FB01109432;      // 64-FB-01-10-94-32
     const int NoSignalSeconds = 3;
+    const int RestartAfterSeconds = 8;
 
     // ---- UI ----
     readonly Label lblWeight = new();
@@ -45,6 +45,10 @@ sealed class MainForm : Form
     DateTime _lastRx = DateTime.MinValue;
     string _raw = "";
     string _error = "";
+
+    // ---- Watchdog ----
+    DateTime _lastRestart = DateTime.Now;
+    volatile bool _restartRequested;
 
     // ---- Copy feedback ----
     string _toast = "";
@@ -151,7 +155,7 @@ sealed class MainForm : Form
         Controls.Add(scroll);
 
         uiTimer.Interval = 150;
-        uiTimer.Tick += (_, _) => RefreshUi();
+        uiTimer.Tick += (_, _) => { Watchdog(); RefreshUi(); };
         uiTimer.Start();
 
         Load += (_, _) => StartWatcher();
@@ -164,16 +168,23 @@ sealed class MainForm : Form
     {
         try
         {
+            if (_watcher != null)
+            {
+                _watcher.Received -= OnReceived;
+                _watcher.Stopped -= OnStopped;
+                try { _watcher.Stop(); } catch { }
+            }
+
             _watcher = new BluetoothLEAdvertisementWatcher
             {
                 ScanningMode = BluetoothLEScanningMode.Active
             };
             _watcher.Received += OnReceived;
-            _watcher.Stopped += (_, e) =>
-            {
-                lock (_lock) _error = "Scanner stopped: " + e.Error;
-            };
+            _watcher.Stopped += OnStopped;
             _watcher.Start();
+
+            _lastRestart = DateTime.Now;
+            lock (_lock) _error = "";
         }
         catch (Exception ex)
         {
@@ -181,9 +192,31 @@ sealed class MainForm : Form
         }
     }
 
+    void OnStopped(BluetoothLEAdvertisementWatcher sender, BluetoothLEAdvertisementWatcherStoppedEventArgs e)
+    {
+        lock (_lock) _error = "Scanner stopped: " + e.Error;
+        _restartRequested = true;
+    }
+
+    // If no packet arrives for a while (or the scanner stopped), restart the scanner
+    void Watchdog()
+    {
+        DateTime last;
+        lock (_lock) last = _lastRx;
+
+        var now = DateTime.Now;
+        var since = last > _lastRestart ? last : _lastRestart;
+        bool silent = (now - since).TotalSeconds > RestartAfterSeconds;
+
+        if ((_restartRequested || silent) && (now - _lastRestart).TotalSeconds >= 3)
+        {
+            _restartRequested = false;
+            StartWatcher();
+        }
+    }
+
     void OnReceived(BluetoothLEAdvertisementWatcher sender, BluetoothLEAdvertisementReceivedEventArgs args)
     {
-
         var name = args.Advertisement.LocalName;
         if (!string.IsNullOrEmpty(name) && name != DeviceName) return;
 
@@ -191,6 +224,8 @@ sealed class MainForm : Form
         {
             if (md.CompanyId != CompanyId) continue;
 
+            // Windows gives the company ID separately; rebuild the full buffer
+            // so offsets match the raw dump: 80 04 01 29 ...
             var payload = new byte[md.Data.Length];
             DataReader.FromBuffer(md.Data).ReadBytes(payload);
 
