@@ -1,13 +1,15 @@
-# IN_C1 Scale for Windows
+# Pro One Nutri Lab Scale (IN_C1) for Windows
 
 **[English](#english) | [فارسی](#فارسی)**
+
+![screenshot](screenshot.png)
 
 ---
 
 <a name="english"></a>
 ## English
 
-A tiny Windows app that shows the live weight of a Bluetooth scale named **IN_C1** directly on your PC, **without the phone app, without pairing, and without connecting**.
+A tiny Windows app that shows the live weight of the **Pro One Nutri Lab** Bluetooth scale (its Bluetooth name is **IN_C1**) directly on your PC, **without the phone app, without pairing, and without connecting**.
 
 ### Why is this useful?
 
@@ -22,7 +24,7 @@ A tiny Windows app that shows the live weight of a Bluetooth scale named **IN_C1
 
 ### Download
 
-Go to the **[Releases page](https://github.com/OWNER/REPO/releases/latest)** and download `IN_C1_Scale.exe`.
+Go to the **[Releases page](https://github.com/HadiTak/ProOne-NutriLab-windows/releases/latest)** and download `IN_C1_Scale.exe`.
 
 ### How to use
 
@@ -44,7 +46,7 @@ The scale sends non-connectable BLE advertisements with manufacturer ID `0x0480`
 
 ### Limitations
 
-- Tested only with the **IN_C1** scale. Other models may use a different format.
+- Tested only with the **Pro One Nutri Lab** scale (Bluetooth name `IN_C1`). Other models may use a different format.
 - Weight is shown in whole grams.
 - Only the weight is decoded. The other bytes in the packet are not decoded.
 
@@ -69,7 +71,7 @@ This is an unofficial, independent project made by observing the scale's public 
 
 ## فارسی
 
-یک برنامه‌ی کوچک ویندوز که وزن زنده‌ی ترازوی بلوتوثی **IN_C1** را مستقیم روی کامپیوتر نشان می‌دهد؛ **بدون اپلیکیشن گوشی، بدون Pair کردن و بدون اتصال**.
+یک برنامه‌ی کوچک ویندوز که وزن زنده‌ی ترازوی بلوتوثی **Pro One Nutri Lab** (نام بلوتوثی: **IN_C1**) را مستقیم روی کامپیوتر نشان می‌دهد؛ **بدون اپلیکیشن گوشی، بدون Pair کردن و بدون اتصال**.
 
 ### چرا به درد می‌خورد؟
 
@@ -84,7 +86,7 @@ This is an unofficial, independent project made by observing the scale's public 
 
 ### دانلود
 
-به **[صفحه‌ی Releases](https://github.com/OWNER/REPO/releases/latest)** بروید و فایل `IN_C1_Scale.exe` را دانلود کنید.
+به **[صفحه‌ی Releases](https://github.com/HadiTak/ProOne-NutriLab-windows/releases/latest)** بروید و فایل `IN_C1_Scale.exe` را دانلود کنید.
 
 ### طرز استفاده
 
@@ -106,7 +108,7 @@ This is an unofficial, independent project made by observing the scale's public 
 
 ### محدودیت‌ها
 
-- فقط با ترازوی **IN_C1** تست شده است. مدل‌های دیگر ممکن است فرمت متفاوتی داشته باشند.
+- فقط با ترازوی **Pro One Nutri Lab** (نام بلوتوثی `IN_C1`) تست شده است. مدل‌های دیگر ممکن است فرمت متفاوتی داشته باشند.
 - وزن به گرمِ صحیح نمایش داده می‌شود.
 - فقط وزن رمزگشایی می‌شود. سایر بایت‌های پکت بررسی نشده‌اند.
 
