@@ -183,7 +183,6 @@ sealed class MainForm : Form
 
     void OnReceived(BluetoothLEAdvertisementWatcher sender, BluetoothLEAdvertisementReceivedEventArgs args)
     {
-        if (args.BluetoothAddress != TargetMac) return;
 
         var name = args.Advertisement.LocalName;
         if (!string.IsNullOrEmpty(name) && name != DeviceName) return;
@@ -325,7 +324,6 @@ sealed class MainForm : Form
         var sb = new StringBuilder();
         sb.AppendLine($"Status:       {status}");
         sb.AppendLine($"Device:       {DeviceName}");
-        sb.AppendLine("MAC:          64-FB-01-10-94-32");
         sb.AppendLine($"Manufacturer: 0x{CompanyId:X4}");
         sb.AppendLine($"RSSI:         {(packets > 0 ? rssi + " dBm" : "-")}");
         sb.AppendLine($"Packets:      {packets}");
