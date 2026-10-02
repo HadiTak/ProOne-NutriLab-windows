@@ -24,7 +24,8 @@ sealed class MainForm : Form
     const ushort CompanyId = 0x0480;
     const int NoSignalSeconds = 3;
     const int RestartAfterSeconds = 8;
-
+    const string BtcAddress = "bc1q7nzwldzyccuelyxsw00fnhj3g09jkj3mx7ugfp";
+    readonly Label lblDonate = new();
     // ---- UI ----
     readonly Label lblWeight = new();
     readonly Label lblHint = new();
@@ -131,7 +132,15 @@ sealed class MainForm : Form
         lblRaw.Font = new Font("Consolas", 9f);
         lblRaw.ForeColor = Color.Gray;
         lblRaw.Padding = new Padding(8, 4, 8, 8);
-
+        // Donation address (click to copy)
+        lblDonate.Dock = DockStyle.Fill;
+        lblDonate.AutoSize = true;
+        lblDonate.Font = new Font("Consolas", 9f);
+        lblDonate.ForeColor = Color.FromArgb(247, 147, 26);
+        lblDonate.Cursor = Cursors.Hand;
+        lblDonate.Padding = new Padding(8, 12, 8, 8);
+        lblDonate.Text = "My Bitcoin address to receive (click to copy):\n" + BtcAddress;
+        lblDonate.Click += (_, _) => CopyText(BtcAddress);
         // Layout: one column, every row sizes itself automatically
         var table = new TableLayoutPanel
         {
@@ -148,6 +157,7 @@ sealed class MainForm : Form
         table.Controls.Add(lblTotal);
         table.Controls.Add(lblInfo);
         table.Controls.Add(lblRaw);
+        table.Controls.Add(lblDonate);        
 
         // Scroll container: if the window is small, a scrollbar appears
         var scroll = new Panel { Dock = DockStyle.Fill, AutoScroll = true };
