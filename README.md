@@ -20,7 +20,8 @@ A tiny Windows app that shows the live weight of the **Pro One Nutri Lab** Bluet
   2. **Click the big weight number** to copy it.
   3. Paste it into your panel.
 - **Packaging weight built in.** Type the weight of the box or wrapping (in grams) into the **Add (g)** field. The app shows *item + packaging* as a smaller total. **Click it to copy.**
-- **Single EXE.** No installer, no Python, no .NET to install. Download and run.
+- **Portable, nothing to install.** A single EXE file: no installer, no Python, no .NET to install. Copy it anywhere (Desktop, a USB flash drive) and double-click.
+- **No sign-up, no account, no location permission.** The original phone app asks for registration and location access; this app needs neither. The only requirement is that **Bluetooth is turned on in Windows**. It never connects to the scale.
 
 ### Download
 
@@ -60,6 +61,16 @@ dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=
 
 Or fork this repository and run the **Build IN_C1_Scale** workflow in the *Actions* tab.
 
+### Support the project
+
+If this app saved you time, you can support its development with Bitcoin:
+
+```
+bc1q7nzwldzyccuelyxsw00fnhj3g09jkj3mx7ugfp
+```
+
+(The same address is shown at the bottom of the app. Click it to copy.)
+
 ### Disclaimer
 
 This is an unofficial, independent project made by observing the scale's public Bluetooth broadcasts. It is not affiliated with the scale's manufacturer. Use at your own risk. Do not use it for legal-for-trade or medical measurements.
@@ -82,7 +93,8 @@ This is an unofficial, independent project made by observing the scale's public 
   2. **روی عدد بزرگ وزن کلیک کنید** تا کپی شود.
   3. در پنل Paste کنید.
 - **وزن بسته‌بندی هم حساب می‌شود.** وزن کارتن یا کاور را (به گرم) در فیلد **Add (g)** بنویسید. مجموع *کالا + بسته‌بندی* با فونت کوچک‌تر نمایش داده می‌شود و **با کلیک روی آن کپی می‌شود.**
-- **فقط یک فایل EXE.** بدون نصب، بدون Python و بدون نیاز به نصب .NET. دانلود کنید و اجرا کنید.
+- **پرتابل و بدون نیاز به نصب.** فقط یک فایل EXE: بدون نصب، بدون Python و بدون نیاز به نصب .NET. هر جا خواستید (دسکتاپ، فلش) کپی کنید و دوبار کلیک کنید.
+- **بدون ثبت‌نام، بدون حساب کاربری و بدون دسترسی لوکیشن.** اپ گوشی ثبت‌نام و دسترسی به موقعیت مکانی می‌خواهد؛ این برنامه هیچ‌کدام را نمی‌خواهد. فقط کافی است **بلوتوث ویندوز روشن باشد**. برنامه هرگز به ترازو وصل (Connect) نمی‌شود.
 
 ### دانلود
 
@@ -121,6 +133,16 @@ dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=
 ```
 
 یا ریپو را Fork کنید و در تب *Actions* گزینه‌ی **Build IN_C1_Scale** را اجرا کنید.
+
+### حمایت از پروژه
+
+اگر این برنامه به کارتان آمد، می‌توانید با بیت‌کوین از توسعه‌ی آن حمایت کنید:
+
+```
+bc1q7nzwldzyccuelyxsw00fnhj3g09jkj3mx7ugfp
+```
+
+(همین آدرس پایین خود برنامه هم نمایش داده می‌شود. با کلیک روی آن کپی می‌شود.)
 
 ### سلب مسئولیت
 
