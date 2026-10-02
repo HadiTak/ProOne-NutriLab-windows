@@ -61,6 +61,7 @@ sealed class MainForm : Form
     public MainForm()
     {
         Text = "IN_C1 Scale";
+        try { Icon = System.Drawing.Icon.ExtractAssociatedIcon(Environment.ProcessPath!); } catch { }
         ClientSize = new Size(560, 660);
         MinimumSize = new Size(420, 320);
         StartPosition = FormStartPosition.CenterScreen;
