@@ -45,7 +45,7 @@ sealed class MainForm : Form
     long _packets;
     DateTime _lastRx = DateTime.MinValue;
     string _raw = "";
-    string _error = "";
+    string _error = "Starting Bluetooth...";
 
     // ---- Watchdog ----
     DateTime _lastRestart = DateTime.Now;
@@ -169,7 +169,7 @@ sealed class MainForm : Form
         uiTimer.Tick += (_, _) => { Watchdog(); RefreshUi(); };
         uiTimer.Start();
 
-        Load += (_, _) => StartWatcher();
+        Shown += (_, _) => { _lastRestart = DateTime.Now; Task.Run(StartWatcher); };
         FormClosing += (_, _) => { try { _watcher?.Stop(); } catch { } };
     }
 
