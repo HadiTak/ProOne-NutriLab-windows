@@ -9,6 +9,10 @@
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <Prefer32Bit>false</Prefer32Bit>
     <DebugType>none</DebugType>
+    <!-- Do not generate IN_C1_Scale.exe.config: the output must be the single EXE -->
+    <GenerateSupportedRuntime>false</GenerateSupportedRuntime>
+    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>false</GenerateBindingRedirectsOutputType>
   </PropertyGroup>
 
   <ItemGroup>
