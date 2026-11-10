@@ -145,8 +145,7 @@ namespace InC1Scale
             Text = "IN_C1 Scale";
             try { Icon = System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath); } catch { }
 
-            ClientSize = new Size(560, 700);
-            MinimumSize = new Size(420, 320);
+            MinimumSize = new Size(320, 240);
             StartPosition = FormStartPosition.CenterScreen;
             BackColor = Color.FromArgb(24, 24, 28);
             ForeColor = Color.White;
@@ -249,6 +248,25 @@ namespace InC1Scale
             var scroll = new Panel { Dock = DockStyle.Fill, AutoScroll = true };
             scroll.Controls.Add(table);
             Controls.Add(scroll);
+
+            // Fit the window to its content (no empty space on the right/bottom)
+            lblWeight.Text = "8888 g";
+            lblHint.Text = "Click the weight or the total to copy";
+            lblTotal.Text = "Total: 88888.88 g";
+            lblInfo.Text = "Status:       Receiving (suspicious packet)" + Environment.NewLine +
+                           "Device:       IN_C1" + Environment.NewLine +
+                           "Manufacturer: 0x0480" + Environment.NewLine +
+                           "RSSI:         -100 dBm" + Environment.NewLine +
+                           "Packets:      1234567" + Environment.NewLine +
+                           "Last Update:  00:00:00";
+            lblRaw.Text = "Raw: 80 04 01 29 02 64 FB 01 10 94 32 11 00 00 00 00 86 05 82";
+            int maxW = 0;
+            foreach (Control c in table.Controls)
+                maxW = Math.Max(maxW, c.GetPreferredSize(Size.Empty).Width + c.Margin.Horizontal);
+            int fitW = maxW + table.Padding.Horizontal + 6;
+            int fitH = table.GetPreferredSize(Size.Empty).Height + 4;
+            var wa = Screen.PrimaryScreen.WorkingArea;
+            ClientSize = new Size(Math.Min(fitW, wa.Width - 40), Math.Min(fitH, wa.Height - 80));
 
             uiTimer.Interval = 150;
             uiTimer.Tick += (s, e) => { Watchdog(); RefreshUi(); };
@@ -500,7 +518,7 @@ namespace InC1Scale
             sb.Append("Last Update:  " + (last == DateTime.MinValue ? "-" : last.ToString("HH:mm:ss")));
             lblInfo.Text = sb.ToString();
 
-            lblRaw.Text = raw.Length > 0 ? "Raw: " + raw : "";
+            lblRaw.Text = "Raw: " + (raw.Length > 0 ? raw : "-");
         }
     }
 }
