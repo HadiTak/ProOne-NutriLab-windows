@@ -22,27 +22,18 @@ jobs:
       - name: Build
         run: dotnet build IN_C1_Scale.csproj -c Release -o out
 
-      - name: Package
+      - name: List output files
         shell: pwsh
-        run: |
-          Get-ChildItem out -File | Where-Object { $_.Extension -eq '.pdb' } | Remove-Item
-          Get-ChildItem out | Format-Table Name, Length
-          $files = Get-ChildItem out -File
-          if ($files.Count -eq 1) {
-            "ASSET=out/IN_C1_Scale.exe" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          } else {
-            Compress-Archive -Path out\* -DestinationPath IN_C1_Scale.zip -Force
-            "ASSET=IN_C1_Scale.zip" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
-          }
+        run: Get-ChildItem out | Format-Table Name, Length
 
       - uses: actions/upload-artifact@v4
         with:
           name: IN_C1_Scale
-          path: ${{ env.ASSET }}
+          path: out/IN_C1_Scale.exe
 
-      - name: Attach to the GitHub Release
+      - name: Attach the EXE to the GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ env.ASSET }}
+          files: out/IN_C1_Scale.exe
           generate_release_notes: true
