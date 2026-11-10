@@ -19,17 +19,30 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Publish single-file EXE
-        run: dotnet publish IN_C1_Scale.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o out
+      - name: Build
+        run: dotnet build IN_C1_Scale.csproj -c Release -o out
+
+      - name: Package
+        shell: pwsh
+        run: |
+          Get-ChildItem out -File | Where-Object { $_.Extension -eq '.pdb' } | Remove-Item
+          Get-ChildItem out | Format-Table Name, Length
+          $files = Get-ChildItem out -File
+          if ($files.Count -eq 1) {
+            "ASSET=out/IN_C1_Scale.exe" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          } else {
+            Compress-Archive -Path out\* -DestinationPath IN_C1_Scale.zip -Force
+            "ASSET=IN_C1_Scale.zip" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          }
 
       - uses: actions/upload-artifact@v4
         with:
           name: IN_C1_Scale
-          path: out/IN_C1_Scale.exe
+          path: ${{ env.ASSET }}
 
-      - name: Attach EXE to the GitHub Release
+      - name: Attach to the GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: out/IN_C1_Scale.exe
+          files: ${{ env.ASSET }}
           generate_release_notes: true
