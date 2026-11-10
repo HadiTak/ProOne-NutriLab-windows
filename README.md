@@ -20,7 +20,7 @@ A tiny Windows app that shows the live weight of the **Pro One Nutri Lab** Bluet
   2. **Click the big weight number** to copy it.
   3. Paste it into your panel.
 - **Packaging weight built in.** Type the weight of the box or wrapping (in grams) into the **Add (g)** field. The app shows *item + packaging* as a smaller total. **Click it to copy.**
-- **Portable, nothing to install.** A single EXE file: no installer, no Python, no .NET to install. Copy it anywhere (Desktop, a USB flash drive) and double-click.
+- **Portable, nothing to install.** A tiny program (under 1 MB): no installer, no Python, nothing to download. It uses .NET Framework, which is already built into Windows 10/11. Copy it anywhere (Desktop, a USB flash drive) and double-click.
 - **No sign-up, no account, no location permission.** The original phone app asks for registration and location access; this app needs neither. The only requirement is that **Bluetooth is turned on in Windows**. It never connects to the scale.
 
 ### Download
@@ -38,7 +38,8 @@ Go to the **[Releases page](https://github.com/HadiTak/ProOne-NutriLab-windows/r
 
 ### Requirements
 
-- Windows 10 (2004+) or Windows 11, 64-bit
+- Windows 10 (version 1803 or newer) or Windows 11
+- .NET Framework 4.7.2 or newer (already included in these Windows versions; if missing, the app tells you and opens the download page)
 - A Bluetooth Low Energy adapter (most laptops have one)
 
 ### How it works
@@ -56,7 +57,7 @@ The scale sends non-connectable BLE advertisements with manufacturer ID `0x0480`
 Install the .NET 8 SDK, then:
 
 ```
-dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true
+dotnet build -c Release -o out
 ```
 
 Or fork this repository and run the **Build IN_C1_Scale** workflow in the *Actions* tab.
@@ -93,7 +94,7 @@ This is an unofficial, independent project made by observing the scale's public 
   2. **روی عدد بزرگ وزن کلیک کنید** تا کپی شود.
   3. در پنل Paste کنید.
 - **وزن بسته‌بندی هم حساب می‌شود.** وزن کارتن یا کاور را (به گرم) در فیلد **Add (g)** بنویسید. مجموع *کالا + بسته‌بندی* با فونت کوچک‌تر نمایش داده می‌شود و **با کلیک روی آن کپی می‌شود.**
-- **پرتابل و بدون نیاز به نصب.** فقط یک فایل EXE: بدون نصب، بدون Python و بدون نیاز به نصب .NET. هر جا خواستید (دسکتاپ، فلش) کپی کنید و دوبار کلیک کنید.
+- **پرتابل و بدون نیاز به نصب.** یک برنامه‌ی خیلی کوچک (کمتر از ۱ مگابایت): بدون نصب، بدون Python و بدون دانلود چیز اضافه. از .NET Framework استفاده می‌کند که از قبل داخل ویندوز ۱۰ و ۱۱ هست. هر جا خواستید (دسکتاپ، فلش) کپی کنید و دوبار کلیک کنید.
 - **بدون ثبت‌نام، بدون حساب کاربری و بدون دسترسی لوکیشن.** اپ گوشی ثبت‌نام و دسترسی به موقعیت مکانی می‌خواهد؛ این برنامه هیچ‌کدام را نمی‌خواهد. فقط کافی است **بلوتوث ویندوز روشن باشد**. برنامه هرگز به ترازو وصل (Connect) نمی‌شود.
 
 ### دانلود
@@ -111,7 +112,8 @@ This is an unofficial, independent project made by observing the scale's public 
 
 ### نیازمندی‌ها
 
-- ویندوز ۱۰ (نسخه‌ی 2004 به بالا) یا ویندوز ۱۱، ۶۴ بیتی
+- ویندوز ۱۰ (نسخه‌ی 1803 به بالا) یا ویندوز ۱۱
+- .NET Framework نسخه 4.7.2 یا بالاتر (در این نسخه‌های ویندوز از قبل هست؛ اگر نبود، برنامه خودش پیام می‌دهد و صفحه‌ی دانلود را باز می‌کند)
 - کارت بلوتوث کم‌مصرف (BLE). بیشتر لپ‌تاپ‌ها دارند.
 
 ### چطور کار می‌کند؟
@@ -129,7 +131,7 @@ This is an unofficial, independent project made by observing the scale's public 
 .NET 8 SDK را نصب کنید و بزنید:
 
 ```
-dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true
+dotnet build -c Release -o out
 ```
 
 یا ریپو را Fork کنید و در تب *Actions* گزینه‌ی **Build IN_C1_Scale** را اجرا کنید.
